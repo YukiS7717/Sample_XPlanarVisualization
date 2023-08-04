@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Visu_Variable" Id="{305fea48-ed79-4441-9ea2-4c93af1f0024}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM Visu_Variable
+VAR
+	i							: INT;
+	stMoverPos					: ARRAY [1..ciMoverMax] OF MoverVector; // Visualizationの画面位置
+	stMoverPos_Origin			: ARRAY [1..ciMoverMax] OF MoverVector; // 実位置の確保
+	strMoverText				: ARRAY [1..ciMoverMax] OF STRING; // 可動子上に表示される文字列
+	strMoverPosText_Num			: ARRAY [1..ciMoverMax] OF STRING; // 可動子番号
+	strMoverPosText_x			: ARRAY [1..ciMoverMax] OF STRING; // 可動子のX座標
+	strMoverPosText_y			: ARRAY [1..ciMoverMax] OF STRING; // 可動子のY座標
+	strMoverPosText_c			: ARRAY [1..ciMoverMax] OF STRING; // 可動子のC座標
+END_VAR
+VAR
+	CONSTANT
+	ciMoverMax					: INT := 4;
+	ciMoverPos_OffsetX			: LREAL := -200; //Mover番号分かける (i-1)
+	ciMoverPos_OffsetY			: LREAL := -200;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[FOR i:=1 TO ciMoverMax DO
+	//値の登録
+	stMoverPos[i] := MAIN.mcMover[i].MCTOPLC.ACT.ActPos; // 可動子の実位置を代入する
+	stMoverPos_Origin[i] := stMoverPos[i]; // 内部使用用に確保する
+	stMoverPos[i].x := stMoverPos[i].x + ciMoverPos_OffsetX*(i-1); // 原点位置にオフセットする
+	stMoverPos[i].y := (-1)*stMoverPos[i].y + ciMoverPos_OffsetY; // 原点位置にオフセットする。Visualizationの画面はYが反転なので-がけする
+	stMoverPos[i].c := (-1)*stMoverPos[i].c; //Visualizationと回転方向が逆なので-かける 
+	
+	//テキストの登録
+	strMoverPosText_Num[i] := AddText_MoverNum(iNumber:= i); // 可動子番号登録
+	strMoverPosText_x[i] := AddText_MovePos(lrPosition:= stMoverPos_Origin[i].x); // 可動子X座標を登録
+	strMoverPosText_y[i] := AddText_MovePos(lrPosition:= stMoverPos_Origin[i].y); // 可動子Y座標を登録
+	
+	//表示テキストを選択 いらないものはコメントアウト
+	strMoverText[i] := ''; //初期化
+	strMoverText[i] := CONCAT(strMoverText[i], strMoverPosText_Num[i]); //可動子番号表示
+	strMoverText[i] := CONCAT(strMoverText[i], strMoverPosText_x[i]); //可動子X座標表示
+	strMoverText[i] := CONCAT(strMoverText[i], strMoverPosText_y[i]); //可動子Y座標表示
+END_FOR]]></ST>
+    </Implementation>
+    <Method Name="AddText_MovePos" Id="{4f6e7703-c140-4167-b240-326fd20f1b50}">
+      <Declaration><![CDATA[METHOD AddText_MovePos : STRING
+VAR_INPUT
+	lrPosition		: LREAL;
+END_VAR
+VAR
+	strTmpText		: STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[strTmpText := LREAL_TO_STRING(lrPosition); //数字をテキストに変換
+strTmpText := DELETE(strTmpText, 255, FIND(strTmpText, '.')+2); //小数点1桁以下を削除
+AddText_MovePos := CONCAT(strTmpText, '$n'); //改行の追加]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AddText_MoverNum" Id="{73bf4be8-bf14-4d03-b197-6c23874931e6}">
+      <Declaration><![CDATA[METHOD AddText_MoverNum : STRING
+VAR_INPUT
+	iNumber				: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AddText_MoverNum := CONCAT(INT_TO_STRING(iNumber), '$n'); //番号を変換して改行を追加]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="Visu_Variable">
+      <LineId Id="5" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="75" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="52" Count="1" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="54" Count="1" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="19" Count="0" />
+    </LineIds>
+    <LineIds Name="Visu_Variable.AddText_MovePos">
+      <LineId Id="20" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="Visu_Variable.AddText_MoverNum">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

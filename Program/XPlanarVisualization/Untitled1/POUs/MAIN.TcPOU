@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{058cc226-bb0f-4c5e-b6c5-adf46d7b7173}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	mcMover						: ARRAY [1..ciMoverMax] OF MC_PlanarMover;
+	i							: INT;
+END_VAR
+VAR
+	CONSTANT
+	ciMoverMax					: INT := 4;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[FOR i:= 1 TO ciMoverMax DO
+	mcMover[i].Update();
+END_FOR]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="2" Count="0" />
+      <LineId Id="10" Count="1" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
